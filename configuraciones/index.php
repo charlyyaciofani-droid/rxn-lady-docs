@@ -122,7 +122,17 @@ include('controlador.php');
                     <td><input name="fac_b" type="text" value="<?php echo $modelo->facB(); ?>" /></td>
                     <td><input name="fac_ecommerce" type="text" value="<?php echo $modelo->facEcommerce(); ?>" /></td>
                     <td><input name="fac_expo" type="text" value="<?php echo $modelo->facExpo(); ?>" /></td>
-                    <td><input name="Nombre_base" type="text" value="<?php echo $modelo->traerBase(); ?>" /></td>
+                    <td>
+                        <input name="Nombre_base" type="text" list="dl-bases" autocomplete="off" value="<?php echo htmlspecialchars($modelo->traerBase()); ?>" />
+                        <datalist id="dl-bases">
+                            <?php 
+                            $bases = $modelo->traerBasesDisponibles(); 
+                            foreach($bases as $base_opt) {
+                                echo '<option value="' . htmlspecialchars($base_opt) . '"></option>';
+                            }
+                            ?>
+                        </datalist>
+                    </td>
                     <td align="center">
                         <?php $modo_actual = $modelo->leoParametroBd('MODO_PROCESO') ?? 'FACTURA'; ?>
                         <select name="modo_proceso" id="modo_proceso">

@@ -48,6 +48,25 @@ public function traerBase()
     }
 }
 
+    /* Método para consultar bases disponibles en el DiccionarioCharly */
+    public function traerBasesDisponibles()
+    {
+        try {
+            require_once("../Conectar.php");
+            $db_diccionario = Conectar_SQL::conexion();
+            $sql = "SELECT DISTINCT NombreBD FROM Empresa WHERE NombreBD IS NOT NULL AND LTRIM(RTRIM(NombreBD)) <> '' ORDER BY NombreBD";
+            $consulta = $db_diccionario->query($sql);
+            $bases = [];
+            while ($fila = $consulta->fetch(PDO::FETCH_ASSOC)) {
+                $bases[] = trim($fila['NombreBD']);
+            }
+            $consulta->closeCursor();
+            return $bases;
+        } catch (Exception $e) {
+            return []; // Fallback seguro
+        }
+    }
+
 
 
     
