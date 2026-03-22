@@ -877,6 +877,15 @@ class modelo extends vista
                         }
 
                         $this->ingresoMensajesApi($pedi_enc['N_COMP'], 'PEDIDOS', $mensaje_log, $grabo, $pedi_enc['COD_CLIENT'], $pedi_enc['NOMBRE_ARCHIVO'], 0, $detalle_api_str, '', '');
+                        
+                        // --- INYECCIÓN UI (LOG DE PEDIDOS) ---
+                        $ui_color = ($grabo == 1) ? '#4caf50' : '#dc3545';
+                        $ui_icon  = ($grabo == 1) ? '✔' : '✘';
+                        
+                        echo "<div style='color: {$ui_color}; font-family: monospace; font-size: 14px; padding: 6px; border-bottom: 1px solid #444; margin-bottom: 2px;'>
+                                [PID-{$pedi_enc['N_COMP']}] {$ui_icon} " . htmlspecialchars($mensaje_log) . "
+                              </div>";
+                        // --------------------------------------
                     } else {
                         // --- FLUJO HISTÓRICO: FACTURAS ---
                         $this->buscoPedido($pedi_enc['N_COMP'], $pedi_enc['COD_CLIENT'], $pedi_enc['ORDEN'], $pedi_enc['NOMBRE_ARCHIVO']);
@@ -924,8 +933,6 @@ class modelo extends vista
                         echo "<div style='color: {$ui_color}; font-family: monospace; font-size: 14px; padding: 6px; border-bottom: 1px solid #444; margin-bottom: 2px;'>
                                 [FAC-{$pedi_enc['N_COMP']}] {$ui_icon} " . htmlspecialchars($ui_msj) . "
                               </div>";
-                        @flush();
-                        @ob_flush();
                         // --------------------------------------
 
                         $mensaje_api = 'ID_INTERNO: ' . $id . ' Mensaje: ' . $stringConvertido . ' ¿Grabó?: ' . ($this->mensaje_api['Succeeded'] ?? '');
@@ -1136,11 +1143,9 @@ class modelo extends vista
                             $descripcio = $this->ctrl_articu['DESCRIPCIO'] . '' . $articu['COD_ARTICU'];
                         }
                     }
-
-                    if ($precio_art < 0 or $precio < 0 or $cant_x_precio_neto < 0) {
+                    if ($precio_art < 0 or $precio < 0) {
                         $precio_art = $precio_art * -1;
                         $precio = $precio * -1;
-                        $cant_x_precio_neto = $cant_x_precio_neto * -1;
                         $art_negativo = -1;
                     } else {
                         $art_negativo = 1;
@@ -1733,19 +1738,12 @@ class modelo extends vista
         if ($response === false) {
             $error = curl_error($ch);
             curl_close($ch);
-            $this->registrarErrorLog("Error cURL: $error");
+            error_log('[' . date('Y-m-d H:i:s') . '] Error cURL: ' . $error);
             return null;
         }
 
-        //echo 'Detalle de la respuesta <br>';
-        //print_r($response);
-
-
         if ($http_code < 200 || $http_code > 299) {
-            // echo "entro en el if de registrar error";
-            $this->registrarErrorLog($articulo);
-            $mensaje = "Error al ingresar el pedido. HTTP Code: $http_code. Response: $response";
-            $this->registrarErrorLog($mensaje);
+            error_log('[' . date('Y-m-d H:i:s') . '] Error al ingresar pedido. HTTP Code: ' . $http_code . ' Response: ' . $response . ' | Detalle artículo: ' . print_r($articulo, true));
             return null;
         }
 
