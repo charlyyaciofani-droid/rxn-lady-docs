@@ -868,6 +868,16 @@ class modelo extends vista
                             error_log('[' . date('Y-m-d H:i:s') . '] No se pudo escribir detalle_proceso.txt');
                         }
 
+                        // --- INYECCIÓN UI (LOG DE PEDIDOS) ---
+                        $ui_color = $is_succeeded ? '#4caf50' : '#dc3545';
+                        $ui_icon  = $is_succeeded ? '✔' : '✘';
+                        echo "<div style='color: {$ui_color}; font-family: monospace; font-size: 14px; padding: 6px; border-bottom: 1px solid #444; margin-bottom: 2px;'>
+                                [PID-{$pedi_enc['N_COMP']}] {$ui_icon} " . htmlspecialchars($mensaje_log) . "
+                              </div>";
+                        @flush();
+                        @ob_flush();
+                        // -------------------------------------
+
                         $this->ingresoMensajesApi($pedi_enc['N_COMP'], 'PEDIDOS', $mensaje_log, $grabo, $pedi_enc['COD_CLIENT'], $pedi_enc['NOMBRE_ARCHIVO'], 0, $detalle_api_str, '', '');
                     } else {
                         // --- FLUJO HISTÓRICO: FACTURAS ---
@@ -907,6 +917,18 @@ class modelo extends vista
                         } else {
                             error_log('[' . date('Y-m-d H:i:s') . '] No se pudo escribir detalle_proceso.txt');
                         }
+
+                        // --- INYECCIÓN UI (LOG DE FACTURAS) ---
+                        $ui_color = ($grabo == 1) ? '#4caf50' : '#dc3545';
+                        $ui_icon  = ($grabo == 1) ? '✔' : '✘';
+                        $ui_msj   = ($grabo == 1) ? "Factura grabada con éxito | ID {$id}" : "ERROR API | " . ($this->mensaje_api['Message'] ?? 'Falla al procesar');
+                        
+                        echo "<div style='color: {$ui_color}; font-family: monospace; font-size: 14px; padding: 6px; border-bottom: 1px solid #444; margin-bottom: 2px;'>
+                                [FAC-{$pedi_enc['N_COMP']}] {$ui_icon} " . htmlspecialchars($ui_msj) . "
+                              </div>";
+                        @flush();
+                        @ob_flush();
+                        // --------------------------------------
 
                         $mensaje_api = 'ID_INTERNO: ' . $id . ' Mensaje: ' . $stringConvertido . ' ¿Grabó?: ' . ($this->mensaje_api['Succeeded'] ?? '');
 
